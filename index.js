@@ -5,6 +5,7 @@ const Recipe = require("./recipe_Schema.js");
 const mongodb = require("mongodb");
 const MongoClient = mongodb.MongoClient;
 const cors = require("cors");
+const dotenv = require("dotenv").config(); // Load environment variables from .env file
 
 // Connect to the database
 (async () => {
@@ -15,6 +16,7 @@ const cors = require("cors");
     console.error("Error connecting to the database:", error);
   }
 })();
+
 
 app.use(
   cors({
