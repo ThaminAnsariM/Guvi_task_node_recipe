@@ -2,12 +2,14 @@ const express = require("express");
 const app = express();
 const connectToDatabase = require("./db_config.js");
 const Recipe = require("./recipe_Schema.js");
-const mongodb = require("mongodb");
-const MongoClient = mongodb.MongoClient;
+const User = require("./user.js");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const cors = require("cors");
+const JWT_KEY = "0dd9dc2b21d48e1a";
 const dotenv = require("dotenv").config(); // Load environment variables from .env file
-
 // Connect to the database
+
 (async () => {
   try {
     await connectToDatabase();
@@ -17,12 +19,33 @@ const dotenv = require("dotenv").config(); // Load environment variables from .e
   }
 })();
 
-
 app.use(
   cors({
     origin: "*",
   })
 );
+
+// Middleware to authenticate JWT tokens
+function authenticateJWT (req, res, next) {
+  console.log("Request Headers:", req.headers);
+
+  if (!req.headers.authorization) {
+    return res.status(401).json({
+      message: "Unauthorized access, please provide a valid token",
+    });
+  } else {
+    try {
+      const payload = jwt.verify(req.headers.authorization, JWT_KEY);
+
+      req.user = payload;
+      next();
+    } catch (error) {
+      return res.status(401).json({
+        message: "Unauthorized access, invalid token",
+      });
+    }
+  }
+};
 
 // Middleware to parse JSON bodies
 
@@ -30,8 +53,9 @@ app.use(express.json());
 
 // Endpoint to create a new recipe
 
-app.post("/createRecipe", async (req, res) => {
+app.post("/createRecipe", authenticateJWT, async (req, res) => {
   try {
+    console.log(req.user.id);
     const recipe = new Recipe(req.body);
 
     await recipe.save();
@@ -51,7 +75,7 @@ app.post("/createRecipe", async (req, res) => {
 // Endpoint to get all recipes
 // This endpoint retrieves all recipes from the database
 
-app.get("/getAllRecipes", async (req, res) => {
+app.get("/getAllRecipes", authenticateJWT,async (req, res) => {
   try {
     const recipes = await Recipe.find();
     if (recipes.length === 0) {
@@ -73,7 +97,7 @@ app.get("/getAllRecipes", async (req, res) => {
 
 // Endpoint to get a recipe by ID
 
-app.get(`/getRecipeByID`, async (req, res) => {
+app.get(`/getRecipeByID`, authenticateJWT, async (req, res) => {
   try {
     const recipe = await Recipe.findOne({ id: req.query.id });
     if (!recipe) {
@@ -95,7 +119,7 @@ app.get(`/getRecipeByID`, async (req, res) => {
 
 // Endpoint to update a recipe by ID
 
-app.put("/updateRecipe", async (req, res) => {
+app.put("/updateRecipe",  authenticateJWT, async (req, res) => {
   try {
     const recipe = await Recipe.updateOne(
       { id: req.query.id },
@@ -120,7 +144,7 @@ app.put("/updateRecipe", async (req, res) => {
 
 // Endpoint to delete a recipe by ID
 
-app.delete("/deleteRecipe", async (req, res) => {
+app.delete("/deleteRecipe", authenticateJWT, async (req, res) => {
   try {
     const recipe = await Recipe.deleteOne({ id: req.query.id });
 
@@ -131,6 +155,70 @@ app.delete("/deleteRecipe", async (req, res) => {
     } else {
       res.status(200).json({
         message: "Recipe deleted successfully",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+});
+
+app.post("/register", async (req, res) => {
+  try {
+    const salt = bcrypt.genSaltSync(10);
+
+    const hash = bcrypt.hashSync(req.body.password, salt);
+
+    const user = new User({ username: req.body.username, password: hash });
+    if (!user.username || !user.password) {
+      return res.status(400).json({
+        message: "Username and password are required",
+      });
+    } else {
+      await user.save();
+      return res.status(201).json({
+        message: "User registered successfully",
+        data: user,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.body.username });
+
+    if (user) {
+      const checkPassword = bcrypt.compareSync(
+        req.body.password,
+        user.password
+      );
+      if (checkPassword) {
+        // Generate JWT token
+        const token = jwt.sign({ id: user._id, role: "user" }, JWT_KEY, {
+          expiresIn: "1hr",
+        });
+
+        return res.status(200).json({
+          message: "Login successful",
+          data: user,
+          token: token,
+        });
+      } else {
+        return res.status(401).json({
+          message: "Invalid password",
+        });
+      }
+    } else {
+      return res.status(404).json({
+        message: "User not found",
       });
     }
   } catch (error) {
