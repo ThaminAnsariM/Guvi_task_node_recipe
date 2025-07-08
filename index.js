@@ -26,7 +26,7 @@ app.use(
 );
 
 // Middleware to authenticate JWT tokens
-function authenticateJWT (req, res, next) {
+function authenticateJWT(req, res, next) {
   console.log("Request Headers:", req.headers);
 
   if (!req.headers.authorization) {
@@ -45,7 +45,7 @@ function authenticateJWT (req, res, next) {
       });
     }
   }
-};
+}
 
 // Middleware to parse JSON bodies
 
@@ -75,7 +75,7 @@ app.post("/createRecipe", authenticateJWT, async (req, res) => {
 // Endpoint to get all recipes
 // This endpoint retrieves all recipes from the database
 
-app.get("/getAllRecipes", authenticateJWT,async (req, res) => {
+app.get("/getAllRecipes", authenticateJWT, async (req, res) => {
   try {
     const recipes = await Recipe.find();
     if (recipes.length === 0) {
@@ -119,7 +119,7 @@ app.get(`/getRecipeByID`, authenticateJWT, async (req, res) => {
 
 // Endpoint to update a recipe by ID
 
-app.put("/updateRecipe",  authenticateJWT, async (req, res) => {
+app.put("/updateRecipe", authenticateJWT, async (req, res) => {
   try {
     const recipe = await Recipe.updateOne(
       { id: req.query.id },
@@ -167,16 +167,18 @@ app.delete("/deleteRecipe", authenticateJWT, async (req, res) => {
 
 app.post("/register", async (req, res) => {
   try {
-    const salt = bcrypt.genSaltSync(10);
 
-    const hash = bcrypt.hashSync(req.body.password, salt);
-
-    const user = new User({ username: req.body.username, password: hash });
-    if (!user.username || !user.password) {
+    if (!req.body.username || !req.body.password) {
       return res.status(400).json({
         message: "Username and password are required",
       });
     } else {
+      const salt = bcrypt.genSaltSync(10);
+
+      const hash = bcrypt.hashSync(req.body.password, salt);
+
+      const user = new User({ username: req.body.username, password: hash });
+
       await user.save();
       return res.status(201).json({
         message: "User registered successfully",
