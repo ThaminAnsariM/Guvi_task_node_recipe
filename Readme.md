@@ -1,25 +1,23 @@
-# Recipe API Server
+# 🍽️ Recipe API Server
 
-This is a Node.js REST API server for managing recipes, built with Express and MongoDB.
+This is a **Node.js** REST API server for managing recipes, built with **Express**, **MongoDB**, and **Mongoose**. It supports full **CRUD** operations, **user authentication** using **JWT**, and includes middleware for secure access.
 
-## Features
+---
 
-- Create, read, update, and delete recipes
-- MongoDB database integration using Mongoose
-- CORS enabled for cross-origin requests
-- Environment variable support with dotenv
+## 🔥 New Features
 
-## Endpoints
+- ✅ Create, read, update, and delete recipes
+- 🔐 User registration and login with hashed passwords (bcrypt)
+- 🔑 JWT-based token authentication for protected routes
+- 🛡️ Middleware to verify JWT token for recipe creation
+- 🌍 CORS enabled for cross-origin requests
+- 🔧 Environment variables with dotenv
 
-| Method | Endpoint           | Description                       |
-|--------|--------------------|-----------------------------------|
-| POST   | /createRecipe      | Create a new recipe               |
-| GET    | /getAllRecipes     | Retrieve all recipes              |
-| GET    | /getRecipeByID     | Retrieve a recipe by its `id`     |
-| PUT    | /updateRecipe      | Update a recipe by its `id`       |
-| DELETE | /deleteRecipe      | Delete a recipe by its `id`       |
+---
 
-sample data 
+## 🧪 Sample Test Data
+
+```json
 [
   {
     "id": "ck2",
@@ -50,3 +48,48 @@ sample data
     "preparationTime": 15
   }
 ]
+
+
+| Method | Endpoint  | Description                 |
+| ------ | --------- | --------------------------- |
+| POST   | /register | Register a new user         |
+| POST   | /login    | Login and receive JWT token |
+
+| Method | Endpoint         | Description                                     |
+|--------|------------------|-------------------------------------------------|
+| POST   | /createRecipe    | 🔐 Create a new recipe (auth required)          |
+| GET    | /getAllRecipes   | 🔐 Retrieve all recipes (auth required)         |
+| GET    | /getRecipeByID   | 🔐 Retrieve a recipe by `id` (auth required)    |
+| PUT    | /updateRecipe    | 🔐 Update a recipe by `id` (auth required)      |
+| DELETE | /deleteRecipe    | 🔐 Delete a recipe by `id` (auth required)      |
+
+
+
+POST /register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "password123"
+}
+
+POST /login
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "password123"
+}
+
+
+POST /createRecipe
+Authorization: <JWT_TOKEN>
+Content-Type: application/json
+
+{
+  "id": "ck6",
+  "name": "Pasta",
+  "ingredients": ["pasta", "sauce", "cheese"],
+  "instructions": "Boil pasta, add sauce, mix well.",
+  "preparationTime": 25
+}
