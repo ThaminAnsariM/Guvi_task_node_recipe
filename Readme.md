@@ -49,19 +49,25 @@ This is a **Node.js** REST API server for managing recipes, built with **Express
   }
 ]
 
+Authentication: endpoint
 
-| Method | Endpoint  | Description                 |
-| ------ | --------- | --------------------------- |
-| POST   | /register | Register a new user         |
-| POST   | /login    | Login and receive JWT token |
+| Method | Endpoint             | Description             |
+| ------ | -------------------- | ----------------------- |
+| `POST` | `/api/auth/register` | Register a new user     |
+| `POST` | `/api/auth/login`    | Login and get JWT token |
 
-| Method | Endpoint         | Description                                     |
-|--------|------------------|-------------------------------------------------|
-| POST   | /createRecipe    | 🔐 Create a new recipe (auth required)          |
-| GET    | /getAllRecipes   | 🔐 Retrieve all recipes (auth required)         |
-| GET    | /getRecipeByID   | 🔐 Retrieve a recipe by `id` (auth required)    |
-| PUT    | /updateRecipe    | 🔐 Update a recipe by `id` (auth required)      |
-| DELETE | /deleteRecipe    | 🔐 Delete a recipe by `id` (auth required)      |
+
+Recipe Management
+
+
+| Method   | Endpoint                      | Description                                     |
+| -------- | ----------------------------- | ----------------------------------------------- |
+| `POST`   | `/api/recipes/create`         | Create a new recipe                             |
+| `GET`    | `/api/recipes/all`            | Get all recipes                                 |
+| `GET`    | `/api/recipes?id=<id>`        | Get a specific recipe by `id` (use query param) |
+| `PUT`    | `/api/recipes/update?id=<id>` | Update a recipe by `id` (query param)           |
+| `DELETE` | `/api/recipes/delete?id=<id>` | Delete a recipe by `id` (query param)           |
+
 
 
 
