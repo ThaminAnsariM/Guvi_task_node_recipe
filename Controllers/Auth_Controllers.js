@@ -2,8 +2,10 @@ const User = require("../Model/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const JWT_KEY = process.env.JWT_KEY;
+const resetLink = process.env.resetLink;
 const crypto = require("crypto");
 const sendEmail = require("./Utils/sendEmail");
+const { CONNREFUSED } = require("dns");
 
 exports.register = async (req, res) => {
   const { username, password } = req.body;
@@ -42,7 +44,7 @@ exports.forgotPassword = async (req, res) => {
     user.resetTokenExpiration = Date.now() + 900000;
     await user.save();
 
-    const resetLink = `http://localhost:5173/reset-password/${token}`;
+    const resetLink = `${resetLink}/${token}`;
     const htmlContent = `
   <h3>Password Reset Request</h3>
   <p> Click the link below to reset your Password:</p>
