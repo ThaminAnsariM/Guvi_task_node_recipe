@@ -7,8 +7,10 @@ function authenticateJWT(req, res, next) {
     return res.status(401).json({ message: "Token required" });
   }
 
+  const token = authHeader.split(" ")[1]; 
+
   try {
-    const payload = jwt.verify(authHeader, JWT_KEY);
+    const payload = jwt.verify(token, JWT_KEY);
     req.user = payload;
     next();
   } catch (error) {
