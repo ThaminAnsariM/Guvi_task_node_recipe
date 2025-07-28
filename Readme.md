@@ -1,3 +1,6 @@
+While using TempMail, pls copy the reset link separately and use it directly by clicking the reset link. The temp mail is alerting to the reset link 
+
+
 # 🍽️ Recipe API Server
 
 This is a **Node.js** REST API server for managing recipes, built with **Express**, **MongoDB**, and **Mongoose**. It supports full **CRUD** operations, **user authentication** using **JWT**, and includes middleware for secure access.
